@@ -29,14 +29,12 @@ void CalculateTriangle(uint segmentId, uint triangleId)
     
     float3 currentRight = mul(locationMatrices[segmentId], float4(1, 0, 0, 0)).xyz;
     float3 nextRight = mul(locationMatrices[segmentId + 1], float4(1, 0, 0, 0)).xyz;
+
+    int roadPoint = floor(triangleId / 2.0);
     
     switch (triangleId)
     {
         case 0:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[1], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[0], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[0], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = nextNormal;
             v3.normal = currentNormal;
@@ -46,10 +44,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 16, 0);
             break;
         case 1:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[1], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[0], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[1], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = currentNormal;
             v3.normal = currentNormal;
@@ -59,10 +53,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(0, 0);
             break;
         case 2:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[2], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[1], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[1], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = nextNormal;
             v3.normal = currentNormal;
@@ -72,10 +62,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 3:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[2], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[1], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[2], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = currentNormal;
             v3.normal = currentNormal;
@@ -85,10 +71,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 17, 0);
             break;
         case 4:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[3], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[2], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[2], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = nextNormal;
             v3.normal = currentNormal;
@@ -98,10 +80,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(1, 0);
             break;
         case 5:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[3], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[2], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[3], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = currentNormal;
             v3.normal = currentNormal;
@@ -111,10 +89,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 6:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[4], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[3], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[3], 1)).xyz;
-        
             v1.normal = nextRight;
             v2.normal = nextRight;
             v3.normal = currentRight;
@@ -124,10 +98,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(1, 0);
             break;
         case 7:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[4], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[3], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[4], 1)).xyz;
-        
             v1.normal = nextRight;
             v2.normal = currentRight;
             v3.normal = currentRight;
@@ -137,10 +107,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 8:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[5], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[4], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[4], 1)).xyz;
-        
             v1.normal = -nextNormal;
             v2.normal = -nextNormal;
             v3.normal = -currentNormal;
@@ -150,10 +116,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(1, 0);
             break;
         case 9:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[5], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[4], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[5], 1)).xyz;
-        
             v1.normal = -nextNormal;
             v2.normal = -currentNormal;
             v3.normal = -currentNormal;
@@ -163,10 +125,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 10:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[6], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[5], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[5], 1)).xyz;
-        
             v1.normal = -nextRight;
             v2.normal = -nextRight;
             v3.normal = -currentRight;
@@ -176,10 +134,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(1, 0);
             break;
         case 11:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[6], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[5], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[6], 1)).xyz;
-        
             v1.normal = -nextRight;
             v2.normal = -currentRight;
             v3.normal = -currentRight;
@@ -189,10 +143,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 12:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[7], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[6], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[6], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = nextNormal;
             v3.normal = currentNormal;
@@ -202,10 +152,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(1, 0);
             break;
         case 13:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[7], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[6], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[7], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = currentNormal;
             v3.normal = currentNormal;
@@ -215,10 +161,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 14:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[0], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[7], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[7], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = nextNormal;
             v3.normal = currentNormal;
@@ -228,10 +170,6 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 21, 0);
             break;
         case 15:
-            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[0], 1)).xyz;
-            v2.position = mul(locationMatrices[segmentId], float4(roadData[7], 1)).xyz;
-            v3.position = mul(locationMatrices[segmentId], float4(roadData[0], 1)).xyz;
-        
             v1.normal = nextNormal;
             v2.normal = currentNormal;
             v3.normal = currentNormal;
@@ -241,6 +179,18 @@ void CalculateTriangle(uint segmentId, uint triangleId)
             v3.texCoord0 = half2(texelSize.x * 17, 0);
             break;
     }
+    
+    if (triangleId % 2 == 0) {
+        v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[roadPoint == 7 ? 0 : roadPoint + 1], 1)).xyz;
+        v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[roadPoint], 1)).xyz;
+        v3.position = mul(locationMatrices[segmentId], float4(roadData[roadPoint], 1)).xyz;
+    }
+    else {
+        v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[roadPoint == 7 ? 0 : roadPoint + 1], 1)).xyz;
+        v2.position = mul(locationMatrices[segmentId], float4(roadData[roadPoint], 1)).xyz;
+        v3.position = mul(locationMatrices[segmentId], float4(roadData[roadPoint == 7 ? 0 : roadPoint + 1], 1)).xyz;
+    }
+
     /*
     v1.normal = normalize(cross(v1.position - v2.position, v3.position - v2.position));
     v2.normal = v1.normal;
