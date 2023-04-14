@@ -1,0 +1,269 @@
+#pragma kernel CSMain
+
+struct VertexData
+{
+    float3 position;
+    float3 normal;
+    float4 tangent;
+    float2 texCoord0;
+};
+
+int numSegments;
+
+StructuredBuffer<float3> roadData;
+StructuredBuffer<float4x4> locationMatrices;
+RWStructuredBuffer<VertexData> vertices;
+RWStructuredBuffer<int> triangles;
+
+static const float2 texelSize = float2(1 / 32.0, 1 / 8.0);
+
+void CalculateTriangle(uint segmentId, uint triangleId)
+{
+    uint index = 3 * 16 * segmentId + triangleId * 3;
+    VertexData v1;
+    VertexData v2;
+    VertexData v3;
+    
+    float3 currentNormal = mul(locationMatrices[segmentId], float4(0, 1, 0, 0)).xyz;
+    float3 nextNormal = mul(locationMatrices[segmentId + 1], float4(0, 1, 0, 0)).xyz;
+    
+    float3 currentRight = mul(locationMatrices[segmentId], float4(1, 0, 0, 0)).xyz;
+    float3 nextRight = mul(locationMatrices[segmentId + 1], float4(1, 0, 0, 0)).xyz;
+    
+    switch (triangleId)
+    {
+        case 0:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[1], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[0], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[0], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = nextNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(0, 1);
+            v2.texCoord0 = half2(texelSize.x * 16, 1);
+            v3.texCoord0 = half2(texelSize.x * 16, 0);
+            break;
+        case 1:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[1], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[0], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[1], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = currentNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(0, 1);
+            v2.texCoord0 = half2(texelSize.x * 16, 0);
+            v3.texCoord0 = half2(0, 0);
+            break;
+        case 2:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[2], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[1], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[1], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = nextNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 17, 1);
+            v2.texCoord0 = half2(texelSize.x * 21, 1);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 3:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[2], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[1], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[2], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = currentNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 17, 1);
+            v2.texCoord0 = half2(texelSize.x * 21, 0);
+            v3.texCoord0 = half2(texelSize.x * 17, 0);
+            break;
+        case 4:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[3], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[2], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[2], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = nextNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 1);
+            v3.texCoord0 = half2(1, 0);
+            break;
+        case 5:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[3], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[2], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[3], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = currentNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 0);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 6:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[4], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[3], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[3], 1)).xyz;
+        
+            v1.normal = nextRight;
+            v2.normal = nextRight;
+            v3.normal = currentRight;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 1);
+            v3.texCoord0 = half2(1, 0);
+            break;
+        case 7:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[4], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[3], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[4], 1)).xyz;
+        
+            v1.normal = nextRight;
+            v2.normal = currentRight;
+            v3.normal = currentRight;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 0);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 8:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[5], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[4], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[4], 1)).xyz;
+        
+            v1.normal = -nextNormal;
+            v2.normal = -nextNormal;
+            v3.normal = -currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 1);
+            v3.texCoord0 = half2(1, 0);
+            break;
+        case 9:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[5], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[4], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[5], 1)).xyz;
+        
+            v1.normal = -nextNormal;
+            v2.normal = -currentNormal;
+            v3.normal = -currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 0);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 10:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[6], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[5], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[5], 1)).xyz;
+        
+            v1.normal = -nextRight;
+            v2.normal = -nextRight;
+            v3.normal = -currentRight;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 1);
+            v3.texCoord0 = half2(1, 0);
+            break;
+        case 11:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[6], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[5], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[6], 1)).xyz;
+        
+            v1.normal = -nextRight;
+            v2.normal = -currentRight;
+            v3.normal = -currentRight;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 0);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 12:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[7], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[6], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[6], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = nextNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 1);
+            v3.texCoord0 = half2(1, 0);
+            break;
+        case 13:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[7], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[6], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[7], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = currentNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 21, 1);
+            v2.texCoord0 = half2(1, 0);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 14:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[0], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId + 1], float4(roadData[7], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[7], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = nextNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 17, 1);
+            v2.texCoord0 = half2(texelSize.x * 21, 1);
+            v3.texCoord0 = half2(texelSize.x * 21, 0);
+            break;
+        case 15:
+            v1.position = mul(locationMatrices[segmentId + 1], float4(roadData[0], 1)).xyz;
+            v2.position = mul(locationMatrices[segmentId], float4(roadData[7], 1)).xyz;
+            v3.position = mul(locationMatrices[segmentId], float4(roadData[0], 1)).xyz;
+        
+            v1.normal = nextNormal;
+            v2.normal = currentNormal;
+            v3.normal = currentNormal;
+        
+            v1.texCoord0 = half2(texelSize.x * 17, 1);
+            v2.texCoord0 = half2(texelSize.x * 21, 0);
+            v3.texCoord0 = half2(texelSize.x * 17, 0);
+            break;
+    }
+    /*
+    v1.normal = normalize(cross(v1.position - v2.position, v3.position - v2.position));
+    v2.normal = v1.normal;
+    v3.normal = v1.normal;*/
+        
+    v1.tangent = float4(normalize(v1.position - v2.position), -1);
+    v2.tangent = v1.tangent;
+    v3.tangent = v1.tangent;
+        
+    vertices[index] = v1;
+    vertices[index + 1] = v2;
+    vertices[index + 2] = v3;
+        
+    triangles[index + 2] = index;
+    triangles[index + 1] = index + 1;
+    triangles[index] = index + 2;
+}
+
+[numthreads(16,16,1)]
+void CSMain (uint3 id : SV_DispatchThreadID, uint3 groupId : SV_GroupThreadID)
+{
+    if (id.x > numSegments)
+        return;
+    
+    CalculateTriangle(id.x, groupId.y);
+}

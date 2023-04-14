@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <Style src="project://database/Assets/Scripts/Editor/custom-styles.uss?fileID=7433441132597879392&amp;guid=1d44bf563f4eab342ad17b01005434bb&amp;type=3#custom-styles" />
+    <ui:Label text="Bezier Interpolation" display-tooltip-when-elided="true" class="header" />
+    <uie:PropertyField binding-path="t" label="T" tooltip="Interpolation value" />
+    <ui:Label text="Bezier Settings" display-tooltip-when-elided="true" tooltip="Control the curve properties" class="header" />
+    <uie:PropertyField label="Looping" binding-path="Looping" tooltip="Should the end connect to the beginning?" />
+    <uie:PropertyField binding-path="useUniformSpacing" label="Use Uniform Spacing" tooltip="Should the data points be uniformly spaced?" />
+    <uie:PropertyField binding-path="pointCount" label="Sample Count" />
+    <ui:GroupBox style="flex-direction: row; flex-grow: 0; flex-basis: auto; flex-wrap: wrap; align-items: center; flex-shrink: 0; justify-content: space-around;">
+        <ui:Button text="Add Node" display-tooltip-when-elided="true" name="addButton" style="flex-grow: 1;" />
+        <ui:Button text="Remove Node" display-tooltip-when-elided="true" focusable="false" name="removeButton" style="flex-grow: 1;" />
+    </ui:GroupBox>
+    <ui:Label text="References" display-tooltip-when-elided="true" tooltip="References to assign to this script" class="header" />
+    <uie:PropertyField binding-path="car" label="Track Object" />
+    <uie:PropertyField binding-path="roadSlice" label="Road Slice Data" tooltip="The road slice to extrude" />
+    <uie:PropertyField binding-path="triangulatorShader" label="Triangulator" tooltip="The compute shader that creates the mesh" />
+    <ui:Label text="Colors" display-tooltip-when-elided="true" class="header" />
+    <uie:PropertyField binding-path="knotColor" label="Knot Color" />
+    <uie:PropertyField binding-path="controlColor" label="Control Point Color" />
+    <uie:PropertyField binding-path="controlLineColor" label="Control Point Line Color" />
+    <uie:PropertyField binding-path="curveColor" label="Curve Color" />
+    <uie:PropertyField binding-path="BezierSpline" label="Spline" />
+</ui:UXML>

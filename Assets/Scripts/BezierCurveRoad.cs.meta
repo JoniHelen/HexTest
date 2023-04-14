@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c4b2632376ee4c74da8fcf4c2c648b2e
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - car: {instanceID: 0}
+  - roadSlice: {fileID: 11400000, guid: ce5a2f1e93196c24880fc04e4cac35cc, type: 2}
+  - triangulatorShader: {fileID: 7200000, guid: b152ba6873a1abd4299855d3d99ac5a9, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
