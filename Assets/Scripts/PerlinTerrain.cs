@@ -29,8 +29,8 @@ public class PerlinTerrain : MonoBehaviour
         public void Execute(int i)
         {
             int vertexStride = (int)(Mathf.Pow(2, SubdivisionCount[0]) + 1);
-            float y = i - vertexStride * Mathf.FloorToInt(i / (float)vertexStride);
-            float x = i - y * vertexStride;
+            float y = i / vertexStride;
+            float x = i % vertexStride;
 
             y = Remap(y, 0, vertexStride, -0.5f, 0.5f);
             x = Remap(x, 0, vertexStride, -0.5f, 0.5f);
@@ -60,14 +60,14 @@ public class PerlinTerrain : MonoBehaviour
             int i = startIndex / count;
 
             int quadStride = (int)Mathf.Pow(2, SubdivisionCount[0]);
-            int y = i - quadStride * Mathf.FloorToInt(i / (float)quadStride);
+            int y = i / quadStride;
 
             int vertTopLeft = i + y;
             int vertBottomLeft = i + quadStride + 1 + y;
             int vertTopRight = vertTopLeft + 1;
             int vertBottomRight = vertBottomLeft + 1;
 
-            result[startIndex] = (uint)vertTopLeft;
+            result[startIndex ] = (uint)vertTopLeft;
             result[startIndex + 1] = (uint)vertBottomLeft;
             result[startIndex + 2] = (uint)vertBottomRight;
 
@@ -77,7 +77,7 @@ public class PerlinTerrain : MonoBehaviour
         }
     }
 
-    [SerializeField, Range(0, 500)]
+    [SerializeField, Range(0, 10)]
     private int SubdivisionCount = 0;
 
     [SerializeField]
