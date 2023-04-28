@@ -108,7 +108,8 @@ public class CubicBezierSpline
         curveLength = tlength;
     }
 
-    private float Remap(float value, float low1, float high1, float low2, float high2) => low2 + (value - low1) * (high2 - low2) / (high1 - low1);
+    private float Remap(float value, float low1, float high1, float low2, float high2)
+        => low2 + (value - low1) * (high2 - low2) / (high1 - low1);
     private int GetNodeIndex(float value) => Mathf.Max(Mathf.CeilToInt(value * NumSegments) - 1, 0);
     private float UniformTtoT(float uniformT) => DistanceToT(uniformT * curveLength);
     private float DistanceToT(float distance)
