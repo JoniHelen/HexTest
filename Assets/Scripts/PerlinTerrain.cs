@@ -35,8 +35,8 @@ public class PerlinTerrain : MonoBehaviour
             y = Remap(y, 0, vertexStride, 0, 1);
             x = Remap(x, 0, vertexStride, 0, 1);
 
-            Vector3 pos = new Vector3(x - 0.5f, Mathf.PerlinNoise(x * 10, y * 10) * ObjParams[1], y - 0.5f);
-            Vector3 normal = NormalFromHeight(new Vector2(x * 10, y * 10), ObjParams[1]);
+            Vector3 pos = new Vector3(x - 0.5f, SamplePerlin(new Vector2(x, y), 4, ObjParams[2]) * ObjParams[1], y - 0.5f);
+            Vector3 normal = NormalFromHeight(new Vector2(x, y), ObjParams[1], ObjParams[2]);
 
             result[i] = new Vertex()
             {
@@ -50,17 +50,21 @@ public class PerlinTerrain : MonoBehaviour
 
     NativeArray<uint> IndexResult;
 
-    private static Vector3 NormalFromHeight(Vector2 id, float amplitude)
+    private static Vector3 NormalFromHeight(Vector2 p, float amplitude, float frequency) // for terrain g(p)
     {
-        float L = Mathf.PerlinNoise(id.x - 1f, id.y) * amplitude;
-        float R = Mathf.PerlinNoise(id.x + 1f, id.y) * amplitude;
-        float T = Mathf.PerlinNoise(id.x, id.y + 1f) * amplitude;
-        float B = Mathf.PerlinNoise(id.x, id.y - 1f) * amplitude;
+        const float eps = 0.0001f; // or some other value
+        Vector2 h = new Vector2(eps, 0);
+        Vector2 r = new Vector2(0, eps);
 
-        return -new Vector3(2 * (R - L), -4, 2 * (B - T)).normalized;
+        float L = SamplePerlin(p - h, 4, frequency) * amplitude;
+        float R = SamplePerlin(p + h, 4, frequency) * amplitude;
+        float B = SamplePerlin(p - r, 4, frequency) * amplitude;
+        float T = SamplePerlin(p + r, 4, frequency) * amplitude;
+
+        return new Vector3(L - R, 2 * h.x, B - T).normalized;
     }
 
-    struct ParallelIndexJob : IJobParallelForBatch
+struct ParallelIndexJob : IJobParallelForBatch
     {
         [ReadOnly]
         public NativeArray<float> ObjParams;
@@ -96,6 +100,9 @@ public class PerlinTerrain : MonoBehaviour
     [SerializeField, Range(0.1f, 100f)]
     private float Amplitude = 1;
 
+    [SerializeField, Range(0.1f, 100f)]
+    private float Frequency = 1;
+
     [SerializeField]
     private MeshFilter meshFilter;
 
@@ -103,6 +110,19 @@ public class PerlinTerrain : MonoBehaviour
     private void OnValidate()
     {
         GenerateMesh();
+    }
+
+    private static float SamplePerlin(Vector2 pos, int numOctaves, float frequency)
+    {
+        float accumulatedHeight = 0;
+
+        for (int i = 0; i < numOctaves; i++)
+        {
+            Vector2 p = frequency * (i + 1) * pos;
+            accumulatedHeight += Mathf.PerlinNoise(p.x, p.y) * (1f / (i + 1));
+        }
+
+        return accumulatedHeight;
     }
 
     private static float Remap(float value, float low1, float high1, float low2, float high2)
@@ -124,9 +144,10 @@ public class PerlinTerrain : MonoBehaviour
         float tc = Mathf.Pow(4, SubdivisionCount);
         int triangleIndexCount = (int)(6 * tc);
 
-        NativeArray<float> variables = new NativeArray<float>(2, Allocator.TempJob);
+        NativeArray<float> variables = new NativeArray<float>(3, Allocator.TempJob);
         variables[0] = SubdivisionCount;
         variables[1] = Amplitude;
+        variables[2] = Frequency;
         VertexResult = new NativeArray<Vertex>(vertexCount, Allocator.TempJob);
         IndexResult = new NativeArray<uint>(triangleIndexCount, Allocator.TempJob);
 
@@ -188,8 +209,8 @@ public class PerlinTerrain : MonoBehaviour
         Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, meshFilter.sharedMesh);
 
         meshFilter.sharedMesh.RecalculateBounds();
-        meshFilter.sharedMesh.RecalculateNormals();
-        meshFilter.sharedMesh.RecalculateTangents();
+        //meshFilter.sharedMesh.RecalculateNormals();
+        //meshFilter.sharedMesh.RecalculateTangents();
 
         variables.Dispose();
     }

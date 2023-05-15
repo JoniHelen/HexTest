@@ -9,7 +9,6 @@ struct VertexData
 };
 
 Texture2D heightMap;
-SamplerState bilinearClampSampler;
 
 RWStructuredBuffer<VertexData> vertices;
 RWStructuredBuffer<int> triangles;
@@ -18,14 +17,16 @@ float heightAmplitude;
 
 uint maxWidth, maxHeight;
 
-float3 NormalFromHeight(float2 uv)
+float3 NormalFromHeight(float2 id)
 {
-    float L = heightMap.SampleLevel(bilinearClampSampler, uv - float2(0.001, 0), 0).g * heightAmplitude;
-    float R = heightMap.SampleLevel(bilinearClampSampler, uv + float2(0.001, 0), 0).g * heightAmplitude;
-    float T = heightMap.SampleLevel(bilinearClampSampler, uv - float2(0, 0.001), 0).g * heightAmplitude;
-    float B = heightMap.SampleLevel(bilinearClampSampler, uv + float2(0, 0.001), 0).g * heightAmplitude;
-    
-    return -normalize(float3(2 * (R - L), -4, 2 * (B - T)));
+    float2 h = float2(1, 0);
+
+    float L = heightMap.Load(float3(id - h.xy, 0)).g * heightAmplitude;
+    float R = heightMap.Load(float3(id + h.xy, 0)).g * heightAmplitude;
+    float B = heightMap.Load(float3(id - h.yx, 0)).g * heightAmplitude;
+    float T = heightMap.Load(float3(id + h.yx, 0)).g * heightAmplitude;
+
+    return normalize(float3(L - R, 2 * h.x, B - T));
 }
 
 VertexData GetVertexData(uint2 id)
@@ -33,8 +34,8 @@ VertexData GetVertexData(uint2 id)
     float2 uv = float2(id.x / (float) maxWidth, id.y / (float) maxHeight);
     VertexData vert;
     vert.tangent = 0;
-    vert.position = float3(id.x, heightMap.SampleLevel(bilinearClampSampler, uv, 0).g * heightAmplitude, id.y);
-    vert.normal = NormalFromHeight(uv);
+    vert.position = float3(id.x, heightMap.Load(float3(id, 0)).g * heightAmplitude, id.y);
+    vert.normal = NormalFromHeight(id);
     vert.texCoord0 = uv;
     return vert;
 }
@@ -53,26 +54,28 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     uint bottomLeftVertexID = topLeftVertexID + maxWidth + 1;
     uint topRightVertexID = topLeftVertexID + 1;
     uint bottomRightVertexID = bottomLeftVertexID + 1;
+
+    uint2 h = uint2(1, 0);
     
     if (id.x == maxWidth - 1 && id.y == maxHeight - 1)
     {
         // needs all corners
         vertices[topLeftVertexID] = GetVertexData(id.xy);
-        vertices[bottomLeftVertexID] = GetVertexData(id.xy + uint2(0, 1));
+        vertices[bottomLeftVertexID] = GetVertexData(id.xy + h.yx);
         vertices[bottomRightVertexID] = GetVertexData(id.xy + 1);
-        vertices[topRightVertexID] = GetVertexData(id.xy + uint2(1, 0));
+        vertices[topRightVertexID] = GetVertexData(id.xy + h);
     }
     else if (id.y == maxHeight - 1)
     {
         // needs bottom left and top left
         vertices[topLeftVertexID] = GetVertexData(id.xy);
-        vertices[bottomLeftVertexID] = GetVertexData(id.xy + uint2(0, 1));
+        vertices[bottomLeftVertexID] = GetVertexData(id.xy + h.yx);
     }
     else if (id.x == maxWidth - 1)
     {
         // needs top right and top left
         vertices[topLeftVertexID] = GetVertexData(id.xy);
-        vertices[topRightVertexID] = GetVertexData(id.xy + uint2(1, 0));
+        vertices[topRightVertexID] = GetVertexData(id.xy + h);
     }
     else
     {

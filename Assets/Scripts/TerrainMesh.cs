@@ -42,10 +42,15 @@ public class TerrainMesh : MonoBehaviour
 
         vertexBuffer = new(heightTexture.width * heightTexture.height, sizeof(float) * 12);
         triangleBuffer = new((heightTexture.width - 1) * (heightTexture.height - 1) * 2 * 3, sizeof(int));
+
+        GenerateMesh();
     }
 
     private void OnEnable()
     {
+        vertexBuffer?.Release();
+        triangleBuffer?.Release();
+
         vertexArray = new Vertex[heightTexture.width * heightTexture.height];
         triangleArray = new uint[(heightTexture.width - 1) * (heightTexture.height - 1) * 2 * 3];
 
@@ -60,11 +65,15 @@ public class TerrainMesh : MonoBehaviour
         };
 
         meshFilter.mesh = mesh;
+
+        GenerateMesh();
     }
 
     private void OnDestroy()
     {
         meshFilter.mesh = null;
+        vertexBuffer?.Release();
+        triangleBuffer?.Release();
     }
 
     private void OnDisable()
@@ -76,7 +85,7 @@ public class TerrainMesh : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GenerateMesh();
+        
     }
 
     private void GenerateMesh()
@@ -145,7 +154,7 @@ public class TerrainMesh : MonoBehaviour
         });
 
         Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, mesh);
-        mesh.RecalculateNormals();
+        //mesh.RecalculateNormals();
         //mesh.RecalculateTangents();
         mesh.RecalculateBounds();
     }
