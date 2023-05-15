@@ -32,8 +32,6 @@ public class TerrainMesh : MonoBehaviour
     private Mesh mesh;
     private MeshFilter meshFilter;
 
-    private byte frameCounter = 0;
-
     private void OnValidate()
     {
         vertexArray = new Vertex[heightTexture.width * heightTexture.height];
@@ -98,7 +96,10 @@ public class TerrainMesh : MonoBehaviour
 
         terrainTriangulator.SetFloat("heightAmplitude", heightMultiplier);
 
-        terrainTriangulator.Dispatch(kernel, Mathf.CeilToInt((heightTexture.width) / 8f), Mathf.CeilToInt((heightTexture.height) / 8f), 1);
+        terrainTriangulator.SetInt("maxWidth", heightTexture.width - 1);
+        terrainTriangulator.SetInt("maxHeight", heightTexture.height - 1);
+
+        terrainTriangulator.Dispatch(kernel, Mathf.CeilToInt((heightTexture.width - 1) / 8f), Mathf.CeilToInt((heightTexture.height - 1) / 8f), 1);
         
         vertexBuffer.GetData(vertexArray);
         triangleBuffer.GetData(triangleArray);
@@ -144,7 +145,7 @@ public class TerrainMesh : MonoBehaviour
         });
 
         Mesh.ApplyAndDisposeWritableMeshData(meshDataArray, mesh);
-        //mesh.RecalculateNormals();
+        mesh.RecalculateNormals();
         //mesh.RecalculateTangents();
         mesh.RecalculateBounds();
     }

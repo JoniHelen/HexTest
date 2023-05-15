@@ -52,10 +52,10 @@ public class PerlinTerrain : MonoBehaviour
 
     private static Vector3 NormalFromHeight(Vector2 id, float amplitude)
     {
-        float L = Mathf.PerlinNoise(id.x - 0.0001f, id.y) * amplitude;
-        float R = Mathf.PerlinNoise(id.x + 0.0001f, id.y) * amplitude;
-        float T = Mathf.PerlinNoise(id.x, id.y + 0.0001f) * amplitude;
-        float B = Mathf.PerlinNoise(id.x, id.y - 0.0001f) * amplitude;
+        float L = Mathf.PerlinNoise(id.x - 1f, id.y) * amplitude;
+        float R = Mathf.PerlinNoise(id.x + 1f, id.y) * amplitude;
+        float T = Mathf.PerlinNoise(id.x, id.y + 1f) * amplitude;
+        float B = Mathf.PerlinNoise(id.x, id.y - 1f) * amplitude;
 
         return -new Vector3(2 * (R - L), -4, 2 * (B - T)).normalized;
     }
@@ -138,7 +138,7 @@ public class PerlinTerrain : MonoBehaviour
         indexJobData.ObjParams = variables;
         indexJobData.result = IndexResult;
 
-        JobHandle vertHandle = vertJobData.Schedule(vertexCount, 16);
+        JobHandle vertHandle = vertJobData.Schedule(vertexCount, 4);
         JobHandle indexHandle = indexJobData.ScheduleBatch(triangleIndexCount, 6);
 
         Mesh.MeshDataArray meshDataArray = Mesh.AllocateWritableMeshData(1);
